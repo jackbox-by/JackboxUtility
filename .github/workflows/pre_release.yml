@@ -104,8 +104,7 @@ jobs:
           zip -r ../../JackboxUtility_Linux.zip *
       - name: Upload release onto Github
         uses: actions/upload-artifact@v3
-        working-directory: dist/JackboxUtility_Windows
         with:
           name: my-artifact
-          path: ../../JackboxUtility_Windows.zip
+          path: /home/runner/work/JackboxRutility/
   
