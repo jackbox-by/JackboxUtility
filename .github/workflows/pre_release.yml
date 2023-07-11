@@ -1,10 +1,10 @@
-name: Pre-release App
+name: Release App
   # You may pin to the exact commit or the version.
   # uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
     
 on:
   push:
-     branches: [ dev ]
+     branches: [ main ]
      
 jobs:
  retrievingVersion:
@@ -13,15 +13,12 @@ jobs:
       version: ${{ steps.versionstep.outputs.version }}
   steps:
     - uses: actions/checkout@v3
-    - name: Expose git commit data
-      uses: rlespinasse/git-commit-data-action@v1
     - name: Retrieve Release Version
       id: versionstep
       working-directory: jackbox_patcher
       run: |
-         DATE=$(date +%s)
          VERSION=$(more pubspec.yaml | grep version: | cut -d ' ' -f2)
-         echo "version=${VERSION}-beta-${DATE}" >> $GITHUB_OUTPUT
+         echo "version=${VERSION}" >> $GITHUB_OUTPUT
  build_windows:
    runs-on: windows-latest
    needs: retrievingVersion
@@ -33,7 +30,7 @@ jobs:
         channel: 'stable'
      - name: Build windows
        working-directory: ./jackbox_patcher
-       run: flutter build windows --build-name ${{ needs.retrievingVersion.outputs.version }} -t ./lib/main_beta.dart
+       run: flutter build windows --build-name ${{ needs.retrievingVersion.outputs.version }} -t ./lib/main_release.dart
      - uses: actions/upload-artifact@v3
        with:
           name: build_windows
@@ -54,30 +51,11 @@ jobs:
         channel: 'stable'
      - name: Build linux
        working-directory: ./jackbox_patcher
-       run: flutter build linux --build-name ${{ needs.retrievingVersion.outputs.version }} -t ./lib/main_beta.dart
+       run: flutter build linux --build-name ${{ needs.retrievingVersion.outputs.version }} -t ./lib/main_release.dart
      - uses: actions/upload-artifact@v3
        with:
           name: build_linux
           path: ./jackbox_patcher/build/linux/x64/release/bundle
- build_macos:
-   runs-on: macos-latest
-   needs: retrievingVersion
-   steps:
-     - uses: actions/checkout@v3
-     - uses: subosito/flutter-action@v2
-       with:
-        flutter-version: '3.10.0'
-        channel: 'stable'
-     - name: Build Macos
-       working-directory: ./jackbox_patcher
-       run: flutter build macos --build-name ${{ needs.retrievingVersion.outputs.version }} -t ./lib/main_beta.dart
-     - run: |
-        mkdir ./jackbox_patcher/build/macosbuildresult
-        mv ./jackbox_patcher/build/macos/Build/Products/Release/jackbox_patcher.app ./jackbox_patcher/build/macosbuildresult
-     - uses: actions/upload-artifact@v3
-       with:
-          name: build_macos
-          path: ./jackbox_patcher/build/macosbuildresult
  upload:
     runs-on: ubuntu-latest
     needs: 
@@ -104,8 +82,7 @@ jobs:
           zip -r ../../JackboxUtility_Linux.zip *
       - name: Upload release onto Github
         uses: actions/upload-artifact@v3
-        working-directory: dist/JackboxUtility_Windows
         with:
           name: my-artifact
-          path: ../../JackboxUtility_Windows.zip
+          path: /home/runner/work/JackboxRutility/
   
