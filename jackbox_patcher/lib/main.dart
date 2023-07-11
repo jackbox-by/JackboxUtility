@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         Locale("de"),
         Locale("es"),
         Locale("uk"),
-        Locale("by")
+        Locale("be")
       ],
       initialRoute: '/',
       routes: {
